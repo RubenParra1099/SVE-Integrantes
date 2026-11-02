@@ -1,0 +1,5 @@
+{
+  "name": "SVE_Integrantes",
+  "description": "Formulario web de registro de nuevos integrantes conectado a Postgres (Neon).",
+  "requestFramePermissions": []
+}
