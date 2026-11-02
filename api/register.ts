@@ -18,8 +18,10 @@ export default async function handler(req: any, res: any) {
   const sexo = String(body.sexo ?? '');
   const telefono = String(body.telefono ?? '').trim();
   const digits = telefono.replace(/\D/g, '');
+  const comunidad = String(body.comunidad ?? '').trim();
 
   if (
+    comunidad.length < 2 || comunidad.length > 100 ||
     nombre.length < 3 ||
     !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(nombre) ||
     isNaN(edad) || edad < 10 || edad > 99 ||
@@ -32,8 +34,8 @@ export default async function handler(req: any, res: any) {
   try {
     const sql = neon(databaseUrl);
     const rows = await sql`
-      INSERT INTO integrantes (nombre_completo, edad, sexo, telefono)
-      VALUES (${nombre}, ${edad}, ${sexo}, ${telefono})
+      INSERT INTO integrantes (nombre_completo, edad, sexo, telefono, comunidad)
+      VALUES (${nombre}, ${edad}, ${sexo}, ${telefono}, ${comunidad})
       RETURNING folio, registrado_en
     `;
     const { folio, registrado_en } = rows[0];

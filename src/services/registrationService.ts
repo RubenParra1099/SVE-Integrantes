@@ -13,6 +13,7 @@ export async function submitRegistration(formData: RegistrationFormData): Promis
     edad: formData.age.trim(),
     sexo: formData.gender,
     telefono: formData.phone.trim(),
+    comunidad: formData.community.trim(),
   };
 
   let response: Response;

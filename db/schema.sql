@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS integrantes (
   edad            SMALLINT    NOT NULL CHECK (edad BETWEEN 10 AND 99),
   sexo            TEXT        NOT NULL CHECK (sexo IN ('Masculino', 'Femenino')),
   telefono        TEXT        NOT NULL,
+  comunidad       TEXT,
   registrado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -13,7 +14,7 @@ CREATE INDEX IF NOT EXISTS integrantes_registrado_en_idx ON integrantes (registr
 
 -- Vista con la fecha en hora CDMX para consultar cómodamente desde Neon Console
 CREATE OR REPLACE VIEW integrantes_cdmx AS
-SELECT folio, nombre_completo, edad, sexo, telefono,
+SELECT folio, nombre_completo, edad, sexo, telefono, comunidad,
        registrado_en AT TIME ZONE 'America/Mexico_City' AS registrado_cdmx
 FROM integrantes
 ORDER BY registrado_en DESC;

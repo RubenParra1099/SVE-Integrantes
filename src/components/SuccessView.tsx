@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, User, Calendar, Phone, Hash, Copy, Check, RotateCcw } from 'lucide-react';
+import { CheckCircle2, User, Calendar, Phone, Users, Hash, Copy, Check, RotateCcw } from 'lucide-react';
 import { RegistrationRecord } from '../types';
 
 interface SuccessViewProps {
@@ -11,7 +11,7 @@ export const SuccessView: React.FC<SuccessViewProps> = ({ record, onReset }) => 
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const text = `REGISTRO DE NUEVOS INTEGRANTES\nID: ${record.id}\nNombre: ${record.fullName}\nEdad: ${record.age}\nSexo: ${record.gender}\nTeléfono: ${record.phone}\nFecha (Hora CDMX): ${record.registeredAt}`;
+    const text = `REGISTRO DE NUEVOS INTEGRANTES\nID: ${record.id}\nNombre: ${record.fullName}\nEdad: ${record.age}\nSexo: ${record.gender}\nTeléfono: ${record.phone}\nComunidad: ${record.community}\nFecha (Hora CDMX): ${record.registeredAt}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -102,6 +102,14 @@ export const SuccessView: React.FC<SuccessViewProps> = ({ record, onReset }) => 
             <div>
               <p className="text-[11px] sm:text-xs text-gray-400 font-medium">Teléfono registrado</p>
               <p className="text-[#222222] font-semibold font-mono">{record.phone}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Users className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] sm:text-xs text-gray-400 font-medium">Comunidad</p>
+              <p className="text-[#222222] font-semibold break-words">{record.community}</p>
             </div>
           </div>
 

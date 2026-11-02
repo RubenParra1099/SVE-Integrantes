@@ -5,6 +5,7 @@ export interface RegistrationFormData {
   age: string;
   gender: Gender | '';
   phone: string;
+  community: string;
 }
 
 export interface RegistrationRecord extends RegistrationFormData {
@@ -17,6 +18,7 @@ export interface FormErrors {
   age?: string;
   gender?: string;
   phone?: string;
+  community?: string;
 }
 
 export type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
