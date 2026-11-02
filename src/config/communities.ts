@@ -1,0 +1,21 @@
+// Lista oficial de comunidades. La usan el formulario (menú) y api/register.ts (validación).
+export const COMMUNITIES = [
+  'San Pedro Apóstol en San Pedro de las Colonias',
+  'San Marcos',
+  'San Miguel Arcángel',
+  'San Pablo Apóstol',
+  'Santa Cecilia',
+  'San José Obrero',
+  'Equipo Diocesano',
+  'San Juan Bautista',
+  'Santa María del Milagro de Caná',
+  'Centro Saulo',
+  'San Rafael Arcángel',
+  'San Martín de Porres',
+  'San Felipe de Jesús',
+  'San Juan de los Lagos (San Pedro)',
+  'Sagrado Corazón de Jesús (Fco. I. Madero)',
+  'Ntra. Sra. de Lourdes',
+  'San Juan de los Lagos (Torreón)',
+  'Parroquia de Todos los Santos',
+] as const;

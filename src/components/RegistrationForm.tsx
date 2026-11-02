@@ -1,6 +1,7 @@
 import React, { useState, useId } from 'react';
-import { User, Calendar, Phone, Users, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { User, Calendar, Phone, Users, ChevronDown, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import { RegistrationFormData, FormErrors, Gender } from '../types';
+import { COMMUNITIES } from '../config/communities';
 
 interface RegistrationFormProps {
   onSubmit: (data: RegistrationFormData) => Promise<void>;
@@ -69,12 +70,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
       errors.phone = 'Ingresa un número telefónico válido (entre 8 y 15 dígitos).';
     }
 
-    // Comunidad: requerida, entre 2 y 100 caracteres
-    const communityTrimmed = data.community.trim();
-    if (!communityTrimmed) {
-      errors.community = 'La comunidad es obligatoria.';
-    } else if (communityTrimmed.length < 2 || communityTrimmed.length > 100) {
-      errors.community = 'Ingresa un nombre de comunidad válido.';
+    // Comunidad: requerida, debe ser una de la lista oficial
+    if (!data.community) {
+      errors.community = 'Selecciona tu comunidad.';
     }
 
     return errors;
@@ -334,22 +332,36 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
             <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none text-gray-400">
               <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <input
+            <select
               id={`community-${formId}`}
-              type="text"
               name="community"
-              maxLength={100}
               disabled={isLoading}
-              placeholder="Ej. Comunidad San José"
               value={formData.community}
-              onChange={(e) => handleChange('community', e.target.value)}
+              onChange={(e) => {
+                handleChange('community', e.target.value);
+                handleBlur('community');
+              }}
               onBlur={() => handleBlur('community')}
-              className={`w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl border bg-gray-50/50 transition-all duration-200 outline-none text-[#222222] placeholder-gray-400 ${
+              className={`w-full appearance-none pl-10 sm:pl-11 pr-9 sm:pr-10 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl border bg-gray-50/50 transition-all duration-200 outline-none cursor-pointer ${
+                formData.community ? 'text-[#222222]' : 'text-gray-400'
+              } ${
                 isFieldInvalid('community')
                   ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
                   : 'border-gray-200 focus:border-[#F3B22B] focus:bg-white focus:ring-2 focus:ring-[#F3B22B]/20'
               }`}
-            />
+            >
+              <option value="" disabled>
+                Selecciona tu comunidad
+              </option>
+              {COMMUNITIES.map((community) => (
+                <option key={community} value={community} className="text-[#222222]">
+                  {community}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 sm:pr-3.5 flex items-center pointer-events-none text-gray-400">
+              <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
           </div>
           {isFieldInvalid('community') && (
             <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1 font-medium">

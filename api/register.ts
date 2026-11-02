@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless';
+import { COMMUNITIES } from '../src/config/communities.js';
 
 // Vercel Serverless Function: POST /api/register
 export default async function handler(req: any, res: any) {
@@ -21,7 +22,7 @@ export default async function handler(req: any, res: any) {
   const comunidad = String(body.comunidad ?? '').trim();
 
   if (
-    comunidad.length < 2 || comunidad.length > 100 ||
+    !(COMMUNITIES as readonly string[]).includes(comunidad) ||
     nombre.length < 3 ||
     !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(nombre) ||
     isNaN(edad) || edad < 10 || edad > 99 ||
