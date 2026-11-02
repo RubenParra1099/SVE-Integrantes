@@ -11,7 +11,7 @@ export const SuccessView: React.FC<SuccessViewProps> = ({ record, onReset }) => 
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const text = `REGISTRO DE NUEVOS INTEGRANTES\nID: ${record.id}\nNombre: ${record.fullName}\nEdad: ${record.age}\nSexo: ${record.gender}\nTeléfono: ${record.phone}\nComunidad: ${record.community}\nFecha (Hora CDMX): ${record.registeredAt}`;
+    const text = `REGISTRO EMAÚS, Noviembre 2026\nID: ${record.id}\nNombre: ${record.fullName}\nEdad: ${record.age}\nSexo: ${record.gender}\nTeléfono: ${record.phone}\nComunidad: ${record.community}\nFecha (Hora CDMX): ${record.registeredAt}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);

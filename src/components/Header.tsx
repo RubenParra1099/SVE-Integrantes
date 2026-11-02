@@ -28,8 +28,8 @@ export const Header: React.FC<HeaderProps> = () => {
       </div>
 
       {/* Main Title */}
-      <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#222222] tracking-tight uppercase mb-1.5 sm:mb-2">
-        REGISTRO DE NUEVOS INTEGRANTES
+      <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#222222] tracking-tight mb-1.5 sm:mb-2">
+        REGISTRO EMAÚS, Noviembre 2026
       </h1>
 
       {/* Subtitle */}
