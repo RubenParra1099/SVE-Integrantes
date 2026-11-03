@@ -7,4 +7,7 @@ export function normalizePhone(raw: string): string {
   return digits;
 }
 
+// Enlace para abrir un chat de WhatsApp (requiere la lada de México 52)
+export const whatsappUrl = (raw: string): string => `https://wa.me/52${normalizePhone(raw)}`;
+
 export const isValidPhone = (raw: string): boolean => normalizePhone(raw).length === 10;

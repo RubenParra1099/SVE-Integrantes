@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2, Phone } from 'lucide-react';
+import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2, Phone, MessageCircle } from 'lucide-react';
+import { whatsappUrl } from '../config/phone';
 import { COMMUNITIES } from '../config/communities';
 import { AdminRecord } from '../types';
 import { EditRecordModal } from './EditRecordModal';
@@ -322,9 +323,21 @@ export const AdminPage: React.FC = () => {
                       <td className="px-4 py-3 text-right tabular-nums">{r.edad}</td>
                       <td className="px-4 py-3">{r.sexo}</td>
                       <td className="px-4 py-3 font-mono whitespace-nowrap">
-                        <a href={`tel:${r.telefono.replace(/\D/g, '')}`} className="hover:text-[#B7841A] hover:underline">
-                          {r.telefono}
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <a href={`tel:${r.telefono.replace(/\D/g, '')}`} className="hover:text-[#B7841A] hover:underline">
+                            {r.telefono}
+                          </a>
+                          <a
+                            href={whatsappUrl(r.telefono)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Mandar mensaje de WhatsApp"
+                            aria-label={`WhatsApp a ${r.nombre_completo}`}
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#25D366]/15 text-[#128C4A] hover:bg-[#25D366] hover:text-white transition"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </a>
+                        </div>
                       </td>
                       <td className="px-4 py-3">{r.comunidad || <span className="text-gray-400">—</span>}</td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap tabular-nums">{r.registrado_cdmx}</td>
@@ -360,13 +373,22 @@ export const AdminPage: React.FC = () => {
                     <span className="font-mono text-xs font-semibold">{r.telefono}</span>
                     <span className="text-[11px] text-gray-400 tabular-nums">{r.registrado_cdmx}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 mt-2.5">
+                  <div className="grid grid-cols-3 gap-2 mt-2.5">
                     <a
                       href={`tel:${r.telefono.replace(/\D/g, '')}`}
-                      className="inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition min-h-[40px]"
+                      className="inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-[#222222] hover:bg-black text-white transition min-h-[40px]"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       Llamar
+                    </a>
+                    <a
+                      href={whatsappUrl(r.telefono)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-[#25D366] hover:bg-[#1EBE5B] text-[#0B3D1F] transition min-h-[40px]"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      WhatsApp
                     </a>
                     <button
                       type="button"
