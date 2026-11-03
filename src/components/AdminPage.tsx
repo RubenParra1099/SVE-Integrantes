@@ -1,16 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users } from 'lucide-react';
+import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2 } from 'lucide-react';
 import { COMMUNITIES } from '../config/communities';
-
-interface AdminRecord {
-  folio: string;
-  nombre_completo: string;
-  edad: number;
-  sexo: string;
-  telefono: string;
-  comunidad: string | null;
-  registrado_cdmx: string;
-}
+import { AdminRecord } from '../types';
+import { EditRecordModal } from './EditRecordModal';
 
 const STORAGE_KEY = 'tls_admin_password';
 
@@ -60,6 +52,20 @@ export const AdminPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [communityFilter, setCommunityFilter] = useState('');
+  const [editing, setEditing] = useState<AdminRecord | null>(null);
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!savedMessage) return;
+    const timer = setTimeout(() => setSavedMessage(null), 3000);
+    return () => clearTimeout(timer);
+  }, [savedMessage]);
+
+  const handleSaved = (updated: AdminRecord) => {
+    setRecords((prev) => (prev ? prev.map((r) => (r.folio === updated.folio ? updated : r)) : prev));
+    setEditing(null);
+    setSavedMessage(`Cambios guardados en ${updated.folio}.`);
+  };
 
   useEffect(() => {
     document.title = 'Registros · REGISTRO EMAÚS';
@@ -118,6 +124,12 @@ export const AdminPage: React.FC = () => {
     setPassword('');
     setPasswordInput('');
     setRecords(null);
+    setEditing(null);
+  };
+
+  const handleUnauthorized = () => {
+    handleLogout();
+    setError('Tu sesión expiró o la contraseña cambió. Vuelve a entrar.');
   };
 
   // Pantalla de acceso
@@ -221,6 +233,13 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
+        {savedMessage && (
+          <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            {savedMessage}
+          </div>
+        )}
+
         {/* Resumen */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-5">
           {[
@@ -286,6 +305,7 @@ export const AdminPage: React.FC = () => {
                     <th className="px-4 py-3 font-semibold">Teléfono</th>
                     <th className="px-4 py-3 font-semibold">Comunidad</th>
                     <th className="px-4 py-3 font-semibold">Registro (CDMX)</th>
+                    <th className="px-4 py-3 font-semibold"><span className="sr-only">Acciones</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -302,6 +322,16 @@ export const AdminPage: React.FC = () => {
                       </td>
                       <td className="px-4 py-3">{r.comunidad || <span className="text-gray-400">—</span>}</td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap tabular-nums">{r.registrado_cdmx}</td>
+                      <td className="px-4 py-2 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setEditing(r)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#F3B22B] hover:bg-[#F3B22B]/10 transition cursor-pointer"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          Editar
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -326,12 +356,30 @@ export const AdminPage: React.FC = () => {
                     </a>
                     <span className="text-[11px] text-gray-400 tabular-nums">{r.registrado_cdmx}</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditing(r)}
+                    className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#F3B22B] hover:bg-[#F3B22B]/10 transition cursor-pointer min-h-[40px]"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Editar
+                  </button>
                 </li>
               ))}
             </ul>
           </>
         )}
       </main>
+
+      {editing && (
+        <EditRecordModal
+          record={editing}
+          password={password}
+          onClose={() => setEditing(null)}
+          onSaved={handleSaved}
+          onUnauthorized={handleUnauthorized}
+        />
+      )}
     </div>
   );
 };

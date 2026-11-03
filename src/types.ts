@@ -21,4 +21,15 @@ export interface FormErrors {
   community?: string;
 }
 
+// Registro tal como lo devuelve /api/records (página /admin)
+export interface AdminRecord {
+  folio: string;
+  nombre_completo: string;
+  edad: number;
+  sexo: string;
+  telefono: string;
+  comunidad: string | null;
+  registrado_cdmx: string;
+}
+
 export type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
