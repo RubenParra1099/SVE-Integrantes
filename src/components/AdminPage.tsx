@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2 } from 'lucide-react';
+import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2, Phone } from 'lucide-react';
 import { COMMUNITIES } from '../config/communities';
 import { AdminRecord } from '../types';
 import { EditRecordModal } from './EditRecordModal';
@@ -322,7 +322,7 @@ export const AdminPage: React.FC = () => {
                       <td className="px-4 py-3 text-right tabular-nums">{r.edad}</td>
                       <td className="px-4 py-3">{r.sexo}</td>
                       <td className="px-4 py-3 font-mono whitespace-nowrap">
-                        <a href={`tel:${r.telefono.replace(/[^\d+]/g, '')}`} className="hover:text-[#B7841A] hover:underline">
+                        <a href={`tel:${r.telefono.replace(/\D/g, '')}`} className="hover:text-[#B7841A] hover:underline">
                           {r.telefono}
                         </a>
                       </td>
@@ -357,19 +357,26 @@ export const AdminPage: React.FC = () => {
                   </p>
                   <p className="text-xs text-gray-600 mt-0.5 break-words">{r.comunidad || '—'}</p>
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                    <a href={`tel:${r.telefono.replace(/[^\d+]/g, '')}`} className="font-mono text-xs font-semibold">
-                      {r.telefono}
-                    </a>
+                    <span className="font-mono text-xs font-semibold">{r.telefono}</span>
                     <span className="text-[11px] text-gray-400 tabular-nums">{r.registrado_cdmx}</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(r)}
-                    className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#F3B22B] hover:bg-[#F3B22B]/10 transition cursor-pointer min-h-[40px]"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    Editar
-                  </button>
+                  <div className="grid grid-cols-2 gap-2 mt-2.5">
+                    <a
+                      href={`tel:${r.telefono.replace(/\D/g, '')}`}
+                      className="inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition min-h-[40px]"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      Llamar
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(r)}
+                      className="inline-flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#F3B22B] hover:bg-[#F3B22B]/10 transition cursor-pointer min-h-[40px]"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Editar
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

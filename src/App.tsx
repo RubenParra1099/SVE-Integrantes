@@ -5,6 +5,7 @@ import { SuccessView } from './components/SuccessView';
 import { Footer } from './components/Footer';
 import { RegistrationFormData, RegistrationRecord, SubmissionStatus } from './types';
 import { submitRegistration } from './services/registrationService';
+import { normalizePhone } from './config/phone';
 import { AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
 
         setLastRecord({
           ...formData,
+          phone: normalizePhone(formData.phone),
           id: response.id || '—',
           registeredAt: formattedDate,
         });

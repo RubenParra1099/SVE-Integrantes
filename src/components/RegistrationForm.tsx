@@ -2,6 +2,7 @@ import React, { useState, useId } from 'react';
 import { User, Calendar, Phone, Users, ChevronDown, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import { RegistrationFormData, FormErrors, Gender } from '../types';
 import { COMMUNITIES } from '../config/communities';
+import { isValidPhone } from '../config/phone';
 
 interface RegistrationFormProps {
   onSubmit: (data: RegistrationFormData) => Promise<void>;
@@ -61,13 +62,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
       errors.gender = 'Selecciona una opción de sexo.';
     }
 
-    // Teléfono: requerido, mínimo 8 dígitos, permite formato internacional (+, espacios, guiones)
+    // Teléfono: requerido, 10 dígitos (se quita +52 automáticamente, ej. del autocompletado)
     const phoneTrimmed = data.phone.trim();
-    const digitsOnly = phoneTrimmed.replace(/\D/g, '');
     if (!phoneTrimmed) {
       errors.phone = 'El teléfono es obligatorio.';
-    } else if (digitsOnly.length < 8 || digitsOnly.length > 15) {
-      errors.phone = 'Ingresa un número telefónico válido (entre 8 y 15 dígitos).';
+    } else if (!isValidPhone(phoneTrimmed)) {
+      errors.phone = 'Ingresa un número de 10 dígitos (sin +52).';
     }
 
     // Comunidad: requerida, debe ser una de la lista oficial
@@ -308,7 +308,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
             </p>
           ) : (
             <p className="mt-1 text-[11px] sm:text-xs text-gray-400">
-              Número con clave lada para avisos y recordatorios
+              Número a 10 dígitos para avisos y recordatorios
             </p>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { RegistrationFormData } from '../types';
+import { normalizePhone } from '../config/phone';
 
 export interface SubmitResponse {
   success: boolean;
@@ -12,7 +13,7 @@ export async function submitRegistration(formData: RegistrationFormData): Promis
     nombreCompleto: formData.fullName.trim(),
     edad: formData.age.trim(),
     sexo: formData.gender,
-    telefono: formData.phone.trim(),
+    telefono: normalizePhone(formData.phone),
     comunidad: formData.community.trim(),
   };
 

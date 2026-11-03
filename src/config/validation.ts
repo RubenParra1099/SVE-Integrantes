@@ -1,4 +1,5 @@
 import { COMMUNITIES } from './communities.js';
+import { normalizePhone } from './phone.js';
 
 export interface RegistroInput {
   nombre: string;
@@ -13,8 +14,7 @@ export function parseRegistro(body: any): RegistroInput | null {
   const nombre = String(body?.nombreCompleto ?? '').trim();
   const edad = parseInt(String(body?.edad ?? ''), 10);
   const sexo = String(body?.sexo ?? '');
-  const telefono = String(body?.telefono ?? '').trim();
-  const digits = telefono.replace(/\D/g, '');
+  const telefono = normalizePhone(body?.telefono);
   const comunidad = String(body?.comunidad ?? '').trim();
 
   if (
@@ -23,7 +23,7 @@ export function parseRegistro(body: any): RegistroInput | null {
     !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(nombre) ||
     isNaN(edad) || edad < 10 || edad > 99 ||
     !['Masculino', 'Femenino'].includes(sexo) ||
-    digits.length < 8 || digits.length > 15
+    telefono.length !== 10
   ) {
     return null;
   }

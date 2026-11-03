@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, Loader2, AlertCircle, Save, Trash2 } from 'lucide-react';
 import { AdminRecord } from '../types';
 import { COMMUNITIES } from '../config/communities';
+import { isValidPhone } from '../config/phone';
 
 interface EditRecordModalProps {
   record: AdminRecord;
@@ -70,8 +71,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
     const age = Number(form.edad);
     if (!/^\d+$/.test(form.edad.trim()) || age < 10 || age > 99) return 'La edad debe estar entre 10 y 99 años.';
     if (!form.sexo) return 'Selecciona el sexo.';
-    const digits = form.telefono.replace(/\D/g, '');
-    if (digits.length < 8 || digits.length > 15) return 'El teléfono debe tener entre 8 y 15 dígitos.';
+    if (!isValidPhone(form.telefono)) return 'El teléfono debe tener 10 dígitos (sin +52).';
     if (!form.comunidad) return 'Selecciona la comunidad.';
     return null;
   };
