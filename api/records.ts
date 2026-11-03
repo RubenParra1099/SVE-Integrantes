@@ -7,11 +7,12 @@ const sha256 = (value: string) => createHash('sha256').update(value).digest();
 // Vercel Serverless Function: /api/records (requiere Authorization: Bearer <ADMIN_PASSWORD>)
 //   GET   → lista de registros
 //   PATCH → edita un registro ({ folio, nombreCompleto, edad, sexo, telefono, comunidad })
+//   DELETE ?folio=INT-0001 → borra un registro
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store');
 
-  if (req.method !== 'GET' && req.method !== 'PATCH') {
-    res.setHeader('Allow', 'GET, PATCH');
+  if (!['GET', 'PATCH', 'DELETE'].includes(req.method)) {
+    res.setHeader('Allow', 'GET, PATCH, DELETE');
     return res.status(405).json({ status: 'error', message: 'Método no permitido' });
   }
 
@@ -30,6 +31,24 @@ export default async function handler(req: any, res: any) {
   }
 
   const sql = neon(databaseUrl);
+
+  if (req.method === 'DELETE') {
+    const folio = String(req.query?.folio ?? '').trim();
+    if (!folio) {
+      return res.status(400).json({ status: 'error', message: 'Falta el folio.' });
+    }
+
+    try {
+      const rows = await sql`DELETE FROM integrantes WHERE folio = ${folio} RETURNING folio`;
+      if (rows.length === 0) {
+        return res.status(404).json({ status: 'error', message: `No existe el registro ${folio}.` });
+      }
+      return res.status(200).json({ status: 'success', data: { folio } });
+    } catch (error) {
+      console.error('Error al borrar en Neon:', error);
+      return res.status(500).json({ status: 'error', message: 'No se pudo borrar el registro.' });
+    }
+  }
 
   if (req.method === 'PATCH') {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};

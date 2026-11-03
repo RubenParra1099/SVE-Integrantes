@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Loader2, AlertCircle, Save } from 'lucide-react';
+import { X, Loader2, AlertCircle, Save, Trash2 } from 'lucide-react';
 import { AdminRecord } from '../types';
 import { COMMUNITIES } from '../config/communities';
 
@@ -8,6 +8,7 @@ interface EditRecordModalProps {
   password: string;
   onClose: () => void;
   onSaved: (updated: AdminRecord) => void;
+  onDeleted: (folio: string) => void;
   onUnauthorized: () => void;
 }
 
@@ -15,7 +16,7 @@ const inputClass =
   'w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:border-[#F3B22B] focus:bg-white focus:ring-2 focus:ring-[#F3B22B]/20 disabled:opacity-60';
 const labelClass = 'block text-xs sm:text-sm font-semibold mb-1.5';
 
-export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, password, onClose, onSaved, onUnauthorized }) => {
+export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, password, onClose, onSaved, onDeleted, onUnauthorized }) => {
   const [form, setForm] = useState({
     nombreCompleto: record.nombre_completo,
     edad: String(record.edad),
@@ -25,6 +26,32 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const handleDelete = async () => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/records?folio=${encodeURIComponent(record.folio)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${password}` },
+      });
+      const result = await response.json().catch(() => null);
+      if (response.status === 401) {
+        onUnauthorized();
+        return;
+      }
+      if (!response.ok || result?.status !== 'success') {
+        throw new Error(result?.message || `Error en el servidor (${response.status})`);
+      }
+      onDeleted(record.folio);
+    } catch (err: any) {
+      setError(err.message || 'No se pudo borrar el registro.');
+      setConfirmingDelete(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -98,7 +125,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
         <div className="flex items-start justify-between gap-3 mb-5">
           <div>
             <h2 id="edit-title" className="text-lg font-extrabold tracking-tight">
-              Editar registro
+              Editar o borrar registro
             </h2>
             <p className="text-xs text-gray-500 font-mono mt-0.5">
               {record.folio} · registrado {record.registrado_cdmx}
@@ -175,6 +202,49 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {isSaving ? 'Guardando…' : 'Guardar cambios'}
           </button>
+        </div>
+
+        {/* Borrar registro (requiere confirmación) */}
+        <div className="mt-5 pt-4 border-t border-gray-100">
+          {confirmingDelete ? (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
+              <p className="text-xs sm:text-sm text-rose-900 font-semibold">
+                ¿Borrar {record.folio} de {record.nombre_completo}?
+              </p>
+              <p className="text-[11px] sm:text-xs text-rose-700 mt-0.5">
+                Se elimina de la base de datos y no se puede deshacer.
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={isSaving}
+                  className="flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold border border-rose-200 bg-white text-rose-800 hover:bg-rose-100 transition cursor-pointer min-h-[40px]"
+                >
+                  No, conservar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isSaving}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white transition cursor-pointer min-h-[40px] disabled:opacity-70"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  Sí, borrar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              disabled={isSaving}
+              className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer min-h-[40px]"
+            >
+              <Trash2 className="w-4 h-4" />
+              Borrar este registro
+            </button>
+          )}
         </div>
       </form>
     </div>

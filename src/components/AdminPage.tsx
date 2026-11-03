@@ -67,6 +67,12 @@ export const AdminPage: React.FC = () => {
     setSavedMessage(`Cambios guardados en ${updated.folio}.`);
   };
 
+  const handleDeleted = (folio: string) => {
+    setRecords((prev) => (prev ? prev.filter((r) => r.folio !== folio) : prev));
+    setEditing(null);
+    setSavedMessage(`Registro ${folio} borrado.`);
+  };
+
   useEffect(() => {
     document.title = 'Registros · REGISTRO EMAÚS';
   }, []);
@@ -377,6 +383,7 @@ export const AdminPage: React.FC = () => {
           password={password}
           onClose={() => setEditing(null)}
           onSaved={handleSaved}
+          onDeleted={handleDeleted}
           onUnauthorized={handleUnauthorized}
         />
       )}
