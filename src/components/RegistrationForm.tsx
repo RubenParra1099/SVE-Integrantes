@@ -1,7 +1,7 @@
 import React, { useState, useId } from 'react';
-import { User, Calendar, Phone, Users, ChevronDown, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { User, Calendar, Phone, Users, ChevronDown, PlusCircle, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import { RegistrationFormData, FormErrors, Gender } from '../types';
-import { COMMUNITIES } from '../config/communities';
+import { COMMUNITIES, OTHER_COMMUNITY, cleanCommunity, isValidCommunity } from '../config/communities';
 import { isValidPhone } from '../config/phone';
 
 interface RegistrationFormProps {
@@ -29,6 +29,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
   });
 
   const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // Nombre escrito a mano cuando la comunidad no aparece en la lista
+  const [newCommunity, setNewCommunity] = useState('');
+  const isOtherCommunity = formData.community === OTHER_COMMUNITY;
 
   // Real-time field validation logic
   const validate = (data: RegistrationFormData): FormErrors => {
@@ -70,9 +74,16 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
       errors.phone = 'Ingresa un número de 10 dígitos (sin +52).';
     }
 
-    // Comunidad: requerida, debe ser una de la lista oficial
+    // Comunidad: requerida; de la lista o escrita a mano si no aparece
     if (!data.community) {
       errors.community = 'Selecciona tu comunidad.';
+    } else if (data.community === OTHER_COMMUNITY) {
+      const typed = cleanCommunity(newCommunity);
+      if (!typed) {
+        errors.community = 'Escribe el nombre de tu comunidad.';
+      } else if (!isValidCommunity(typed)) {
+        errors.community = 'El nombre debe tener entre 3 y 100 caracteres.';
+      }
     }
 
     return errors;
@@ -106,7 +117,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
 
     const currentErrors = validate(formData);
     if (Object.keys(currentErrors).length === 0) {
-      await onSubmit(formData);
+      await onSubmit(
+        isOtherCommunity ? { ...formData, community: cleanCommunity(newCommunity) } : formData
+      );
     }
   };
 
@@ -358,11 +371,39 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
                   {community}
                 </option>
               ))}
+              <option value={OTHER_COMMUNITY} className="text-[#222222]">
+                Mi comunidad no aparece (nueva comunidad)
+              </option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 sm:pr-3.5 flex items-center pointer-events-none text-gray-400">
               <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
+          {isOtherCommunity && (
+            <div className="relative mt-2 animate-fadeIn">
+              <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <input
+                id={`newCommunity-${formId}`}
+                type="text"
+                name="newCommunity"
+                autoFocus
+                maxLength={100}
+                disabled={isLoading}
+                aria-label="Nombre de la nueva comunidad"
+                placeholder="Escribe el nombre de tu comunidad"
+                value={newCommunity}
+                onChange={(e) => setNewCommunity(e.target.value)}
+                onBlur={() => handleBlur('community')}
+                className={`w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl border bg-gray-50/50 transition-all duration-200 outline-none text-[#222222] placeholder-gray-400 ${
+                  isFieldInvalid('community')
+                    ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
+                    : 'border-gray-200 focus:border-[#F3B22B] focus:bg-white focus:ring-2 focus:ring-[#F3B22B]/20'
+                }`}
+              />
+            </div>
+          )}
           {isFieldInvalid('community') && (
             <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1 font-medium">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />

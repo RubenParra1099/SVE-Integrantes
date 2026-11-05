@@ -174,6 +174,10 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
               {COMMUNITIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
+              {/* Comunidad nueva (escrita al registrarse) que no está en la lista oficial */}
+              {record.comunidad && !(COMMUNITIES as readonly string[]).includes(record.comunidad) && (
+                <option value={record.comunidad}>{record.comunidad} (nueva)</option>
+              )}
             </select>
           </div>
         </div>

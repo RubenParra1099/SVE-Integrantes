@@ -1,4 +1,4 @@
-// Lista oficial de comunidades. La usan el formulario (menú) y api/register.ts (validación).
+// Lista oficial de comunidades. La usan el formulario (menú) y el panel /admin; también se aceptan comunidades nuevas.
 export const COMMUNITIES = [
   'San Pedro Apóstol en San Pedro de las Colonias',
   'San Marcos',
@@ -19,3 +19,16 @@ export const COMMUNITIES = [
   'San Juan de los Lagos (Torreón)',
   'Parroquia de Todos los Santos',
 ] as const;
+
+// Valor del menú para "mi comunidad no aparece": se pide escribir el nombre a mano.
+export const OTHER_COMMUNITY = '__otra__';
+
+// Limpia el nombre de una comunidad (quita espacios sobrantes).
+export function cleanCommunity(value: unknown): string {
+  return String(value ?? '').trim().replace(/\s+/g, ' ');
+}
+
+// Acepta comunidades de la lista oficial o nuevas escritas a mano (3 a 100 caracteres).
+export function isValidCommunity(value: string): boolean {
+  return value !== OTHER_COMMUNITY && value.length >= 3 && value.length <= 100;
+}

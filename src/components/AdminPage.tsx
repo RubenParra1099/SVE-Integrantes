@@ -118,6 +118,16 @@ export const AdminPage: React.FC = () => {
     });
   }, [records, search, communityFilter]);
 
+  // Lista oficial + comunidades nuevas que la gente escribió al registrarse
+  const communityOptions = useMemo(() => {
+    const official = COMMUNITIES as readonly string[];
+    const extra = new Set<string>();
+    for (const r of records ?? []) {
+      if (r.comunidad && !official.includes(r.comunidad)) extra.add(r.comunidad);
+    }
+    return [...official, ...[...extra].sort((a, b) => a.localeCompare(b, 'es'))];
+  }, [records]);
+
   const men = filtered.filter((r) => r.sexo === 'Masculino').length;
   const women = filtered.filter((r) => r.sexo === 'Femenino').length;
 
@@ -285,7 +295,7 @@ export const AdminPage: React.FC = () => {
               className="w-full appearance-none pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-white outline-none cursor-pointer focus:border-[#F3B22B] focus:ring-2 focus:ring-[#F3B22B]/20"
             >
               <option value="">Todas las comunidades</option>
-              {COMMUNITIES.map((c) => (
+              {communityOptions.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
