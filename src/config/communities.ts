@@ -1,4 +1,5 @@
-// Lista oficial de comunidades. La usan el formulario (menú) y el panel /admin; también se aceptan comunidades nuevas.
+// Lista inicial de comunidades. La lista vigente vive en la tabla `comunidades` (se edita desde /admin);
+// esta se usa para llenarla la primera vez y como respaldo si el servidor no responde.
 export const COMMUNITIES = [
   'San Pedro Apóstol en San Pedro de las Colonias',
   'San Marcos',

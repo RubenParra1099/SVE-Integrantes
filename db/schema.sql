@@ -18,3 +18,10 @@ SELECT folio, nombre_completo, edad, sexo, telefono, comunidad,
        registrado_en AT TIME ZONE 'America/Mexico_City' AS registrado_cdmx
 FROM integrantes
 ORDER BY registrado_en DESC;
+
+-- Lista de comunidades que aparece en el formulario (se edita desde /admin).
+-- Si no la creas aquí, /api/communities la crea y la llena sola la primera vez.
+CREATE TABLE IF NOT EXISTS comunidades (
+  id     SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL UNIQUE CHECK (char_length(nombre) BETWEEN 3 AND 100)
+);

@@ -1,8 +1,6 @@
 import { neon } from '@neondatabase/serverless';
-import { createHash, timingSafeEqual } from 'crypto';
 import { parseRegistro } from '../src/config/validation.js';
-
-const sha256 = (value: string) => createHash('sha256').update(value).digest();
+import { requireAdmin } from './_lib/auth.js';
 
 // Vercel Serverless Function: /api/records (requiere Authorization: Bearer <ADMIN_PASSWORD>)
 //   GET   → lista de registros
@@ -22,13 +20,7 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ status: 'error', message: 'Faltan DATABASE_URL o ADMIN_PASSWORD en el servidor.' });
   }
 
-  const auth = String(req.headers?.authorization ?? '');
-  const provided = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!provided || !timingSafeEqual(sha256(provided), sha256(adminPassword))) {
-    // Pequeña pausa para frenar intentos de adivinar la contraseña
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return res.status(401).json({ status: 'error', message: 'Contraseña incorrecta.' });
-  }
+  if (!(await requireAdmin(req, res, adminPassword))) return;
 
   const sql = neon(databaseUrl);
 

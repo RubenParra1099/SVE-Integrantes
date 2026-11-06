@@ -1,8 +1,9 @@
-import React, { useState, useId } from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import { User, Calendar, Phone, Users, ChevronDown, PlusCircle, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import { RegistrationFormData, FormErrors, Gender } from '../types';
 import { COMMUNITIES, OTHER_COMMUNITY, cleanCommunity, isValidCommunity } from '../config/communities';
 import { isValidPhone } from '../config/phone';
+import { fetchCommunities } from '../services/communitiesService';
 
 interface RegistrationFormProps {
   onSubmit: (data: RegistrationFormData) => Promise<void>;
@@ -33,6 +34,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
   // Nombre escrito a mano cuando la comunidad no aparece en la lista
   const [newCommunity, setNewCommunity] = useState('');
   const isOtherCommunity = formData.community === OTHER_COMMUNITY;
+
+  // Lista de comunidades editable desde /admin (mientras carga se muestra la lista inicial)
+  const [communities, setCommunities] = useState<string[]>([...COMMUNITIES]);
+  useEffect(() => {
+    fetchCommunities().then(setCommunities);
+  }, []);
 
   // Real-time field validation logic
   const validate = (data: RegistrationFormData): FormErrors => {
@@ -366,7 +373,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
               <option value="" disabled>
                 Selecciona tu comunidad
               </option>
-              {COMMUNITIES.map((community) => (
+              {communities.map((community) => (
                 <option key={community} value={community} className="text-[#222222]">
                   {community}
                 </option>

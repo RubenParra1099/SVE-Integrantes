@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { X, Loader2, AlertCircle, Save, Trash2 } from 'lucide-react';
 import { AdminRecord } from '../types';
-import { COMMUNITIES } from '../config/communities';
 import { isValidPhone } from '../config/phone';
 
 interface EditRecordModalProps {
   record: AdminRecord;
+  communities: string[];
   password: string;
   onClose: () => void;
   onSaved: (updated: AdminRecord) => void;
@@ -17,7 +17,7 @@ const inputClass =
   'w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:border-[#F3B22B] focus:bg-white focus:ring-2 focus:ring-[#F3B22B]/20 disabled:opacity-60';
 const labelClass = 'block text-xs sm:text-sm font-semibold mb-1.5';
 
-export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, password, onClose, onSaved, onDeleted, onUnauthorized }) => {
+export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, communities, password, onClose, onSaved, onDeleted, onUnauthorized }) => {
   const [form, setForm] = useState({
     nombreCompleto: record.nombre_completo,
     edad: String(record.edad),
@@ -171,11 +171,11 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({ record, passwo
             <label htmlFor="edit-community" className={labelClass}>Comunidad</label>
             <select id="edit-community" disabled={isSaving} value={form.comunidad} onChange={set('comunidad')} className={`${inputClass} cursor-pointer`}>
               <option value="" disabled>Selecciona la comunidad</option>
-              {COMMUNITIES.map((c) => (
+              {communities.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
               {/* Comunidad nueva (escrita al registrarse) que no está en la lista oficial */}
-              {record.comunidad && !(COMMUNITIES as readonly string[]).includes(record.comunidad) && (
+              {record.comunidad && !communities.includes(record.comunidad) && (
                 <option value={record.comunidad}>{record.comunidad} (nueva)</option>
               )}
             </select>

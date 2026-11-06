@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2, Phone, MessageCircle } from 'lucide-react';
+import { Lock, Loader2, AlertCircle, Download, RefreshCw, LogOut, Search, Users, Pencil, CheckCircle2, Phone, MessageCircle, ListChecks } from 'lucide-react';
 import { whatsappUrl } from '../config/phone';
 import { COMMUNITIES } from '../config/communities';
+import { fetchCommunities } from '../services/communitiesService';
 import { AdminRecord } from '../types';
 import { EditRecordModal } from './EditRecordModal';
+import { CommunitiesModal } from './CommunitiesModal';
 
 const STORAGE_KEY = 'tls_admin_password';
 
@@ -55,6 +57,8 @@ export const AdminPage: React.FC = () => {
   const [communityFilter, setCommunityFilter] = useState('');
   const [editing, setEditing] = useState<AdminRecord | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [communities, setCommunities] = useState<string[]>([...COMMUNITIES]);
+  const [managingCommunities, setManagingCommunities] = useState(false);
 
   useEffect(() => {
     if (!savedMessage) return;
@@ -74,6 +78,17 @@ export const AdminPage: React.FC = () => {
     setSavedMessage(`Registro ${folio} borrado.`);
   };
 
+  const handleCommunitiesChanged = (list: string[], message: string, renamed?: { from: string; to: string }) => {
+    setCommunities(list);
+    if (renamed) {
+      setRecords((prev) =>
+        prev ? prev.map((r) => (r.comunidad === renamed.from ? { ...r, comunidad: renamed.to } : r)) : prev
+      );
+      setCommunityFilter((prev) => (prev === renamed.from ? renamed.to : prev));
+    }
+    setSavedMessage(message);
+  };
+
   useEffect(() => {
     document.title = 'Registros · REGISTRO EMAÚS';
   }, []);
@@ -82,6 +97,7 @@ export const AdminPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
+      fetchCommunities().then(setCommunities);
       const response = await fetch('/api/records', { headers: { Authorization: `Bearer ${pw}` } });
       const result = await response.json().catch(() => null);
       if (response.status === 401) {
@@ -120,13 +136,12 @@ export const AdminPage: React.FC = () => {
 
   // Lista oficial + comunidades nuevas que la gente escribió al registrarse
   const communityOptions = useMemo(() => {
-    const official = COMMUNITIES as readonly string[];
     const extra = new Set<string>();
     for (const r of records ?? []) {
-      if (r.comunidad && !official.includes(r.comunidad)) extra.add(r.comunidad);
+      if (r.comunidad && !communities.includes(r.comunidad)) extra.add(r.comunidad);
     }
-    return [...official, ...[...extra].sort((a, b) => a.localeCompare(b, 'es'))];
-  }, [records]);
+    return [...communities, ...[...extra].sort((a, b) => a.localeCompare(b, 'es'))];
+  }, [records, communities]);
 
   const men = filtered.filter((r) => r.sexo === 'Masculino').length;
   const women = filtered.filter((r) => r.sexo === 'Femenino').length;
@@ -142,6 +157,7 @@ export const AdminPage: React.FC = () => {
     setPasswordInput('');
     setRecords(null);
     setEditing(null);
+    setManagingCommunities(false);
   };
 
   const handleUnauthorized = () => {
@@ -222,6 +238,15 @@ export const AdminPage: React.FC = () => {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Actualizar</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setManagingCommunities(true)}
+              title="Editar comunidades"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition cursor-pointer min-h-[40px]"
+            >
+              <ListChecks className="w-4 h-4" />
+              <span className="hidden sm:inline">Comunidades</span>
             </button>
             <button
               type="button"
@@ -419,10 +444,22 @@ export const AdminPage: React.FC = () => {
       {editing && (
         <EditRecordModal
           record={editing}
+          communities={communities}
           password={password}
           onClose={() => setEditing(null)}
           onSaved={handleSaved}
           onDeleted={handleDeleted}
+          onUnauthorized={handleUnauthorized}
+        />
+      )}
+
+      {managingCommunities && (
+        <CommunitiesModal
+          communities={communities}
+          records={records}
+          password={password}
+          onClose={() => setManagingCommunities(false)}
+          onChanged={handleCommunitiesChanged}
           onUnauthorized={handleUnauthorized}
         />
       )}
