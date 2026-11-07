@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { parseRegistro } from '../src/config/validation.js';
+import { withTable } from './_lib/communitiesTable.js';
 
 // Vercel Serverless Function: POST /api/register
 export default async function handler(req: any, res: any) {
@@ -18,10 +19,27 @@ export default async function handler(req: any, res: any) {
   if (!input) {
     return res.status(400).json({ status: 'error', message: 'Datos de registro inválidos.' });
   }
-  const { nombre, edad, sexo, telefono, comunidad } = input;
+  const { nombre, edad, sexo, telefono } = input;
+  let { comunidad } = input;
 
   try {
     const sql = neon(databaseUrl);
+
+    // Comunidad nueva escrita a mano: si ya existe con otras mayúsculas se usa ese nombre;
+    // si no, se agrega a la lista para que aparezca en el menú. Si esto falla, el registro sigue.
+    try {
+      const existing = (await withTable(sql, () =>
+        sql`SELECT nombre FROM comunidades WHERE lower(nombre) = lower(${comunidad}) LIMIT 1`
+      )) as { nombre: string }[];
+      if (existing.length > 0) {
+        comunidad = existing[0].nombre;
+      } else {
+        await sql`INSERT INTO comunidades (nombre) VALUES (${comunidad}) ON CONFLICT (nombre) DO NOTHING`;
+      }
+    } catch (error) {
+      console.error('No se pudo agregar la comunidad a la lista:', error);
+    }
+
     const rows = await sql`
       INSERT INTO integrantes (nombre_completo, edad, sexo, telefono, comunidad)
       VALUES (${nombre}, ${edad}, ${sexo}, ${telefono}, ${comunidad})
